@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Details</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <h2>Student Details</h2>
+
+  <label for="searchvalue">Search the details:</label>
+  <input type="text" id="searchvalue" placeholder="Enter name to search">
+
+  <label for="districtFilter">Filter by District:</label>
+  <select id="districtFilter">
+    <option value="">All Districts</option>
+    <option value="Coimbatore">Coimbatore</option>
+    <option value="Tiruchirappalli">Tiruchirappalli</option>
+    <option value="Salem">Salem</option>
+    <option value="Erode">Erode</option>
+    <option value="Vellore">Vellore</option>
+    <option value="Thanjavur">Thanjavur</option>
+    <option value="Thiruvannamalai">Thiruvannamalai</option>
+    <option value="Kanyakumari">Kanyakumari</option>
+  </select>
+  <button onclick="searchStudent()">Search</button>
+  <button type="button" onclick="sortStudents()">Sort by Name</button>
+
+  <h3>Add/Edit Student</h3>
+  <label for="name">Name:</label>
+  <input type="text" id="name" placeholder="Enter name" required>
+
+  <label for="age">Age:</label>
+  <input type="number" id="age" placeholder="Enter age" required>
+
+  <label for="phone">Phone:</label>
+  <input type="text" id="phone" placeholder="Enter phone number" required>
+
+  <label for="district">District:</label>
+  <input type="text" id="district" placeholder="Enter District"><br><br>
+
+  <button type="button" id="submitButton" onclick="addOrUpdateStudent()">Submit</button>
+  <button type="button" id="editButton" onclick="editSelectedStudent()">Edit</button>
+  <button type="button" id="deleteButton" onclick="deleteSelectedStudent()">Delete</button>
+
+  <table id="studentTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Age</th>
+        <th>Phone</th>
+        <th>District</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody">
+    </tbody>
+  </table>
+
+  <script>
+    let students = [
+      { "name": "Mouli", "age": 20, "phone": "6382073404", "district": "Coimbatore" },
+      { "name": "Sibi", "age": 22, "phone": "9677951873", "district": "Coimbatore" },
+      { "name": "Mithusha", "age": 21, "phone": "9677964831", "district": "Tiruchirappalli" },
+      { "name": "Priyanka", "age": 23, "phone": "6374735088", "district": "Salem" },
+      { "name": "Santhosh", "age": 20, "phone": "9360252131", "district": "Erode" },
+      { "name": "Aswath", "age": 22, "phone": "9159873239", "district": "Vellore" },
+      { "name": "Selva", "age": 19, "phone": "7845744839", "district": "Thanjavur" },
+      { "name": "kaveen", "age": 21, "phone": "9698078015", "district": "Thiruvannamalai" },
+      { "name": "Vinoth", "age": 23, "phone": "1234567890", "district": "Kanyakumari" }
+    ];
+
+    let selectedStudentIndex = null;
+
+    function displayStudents(students) {
+      let tableBody = document.getElementById("tableBody");
+      tableBody.innerHTML = "";
+
+      for (let i = 0; i < students.length; i++) {
+        let row = "<tr>";
+        row += `<td onclick="selectStudent(${i})">${students[i].name}</td>`;
+        row += "<td>" + students[i].age + "</td>";
+        row += "<td>" + students[i].phone + "</td>";
+        row += "<td>" + students[i].district + "</td>";
+        row += "</tr>";
+        tableBody.innerHTML += row;
+      }
+    }
+
+    function sortStudents() {
+      students.sort((a, b) => a.name.localeCompare(b.name));
+      displayStudents(students);
+    }
+
+    displayStudents(students);
+
+    function searchStudent() {
+      let searchValue = document.getElementById("searchvalue").value.toLowerCase();
+      let selectedDistrict = document.getElementById("districtFilter").value;
+
+      let filteredStudents = students.filter(student => {
+        let matchesSearch = student.name.toLowerCase().includes(searchValue) ||
+          student.age.toString().includes(searchValue) ||
+          student.phone.includes(searchValue);
+        let matchesDistrict = selectedDistrict === "" || student.district === selectedDistrict;
+        return matchesSearch && matchesDistrict;
+      });
+
+      displayStudents(filteredStudents);
+    }
+
+    function selectStudent(index) {
+      selectedStudentIndex = index; 
+      let student = students[index];
+
+      document.getElementById("name").value = student.name;
+      document.getElementById("age").value = student.age;
+      document.getElementById("phone").value = student.phone;
+      document.getElementById("district").value = student.district;
+
+      document.getElementById("editButton").disabled = false;
+      document.getElementById("deleteButton").disabled = false;
+    }
+
+    function editSelectedStudent() {
+      if (selectedStudentIndex !== null) {
+        students[selectedStudentIndex].name = document.getElementById("name").value;
+        students[selectedStudentIndex].age = document.getElementById("age").value;
+        students[selectedStudentIndex].phone = document.getElementById("phone").value;
+        students[selectedStudentIndex].district = document.getElementById("district").value;
+
+        resetForm();
+        displayStudents(students);
+      }
+    }
+
+    function deleteSelectedStudent() {
+      if (selectedStudentIndex !== null) {
+        students.splice(selectedStudentIndex, 1);
+
+        resetForm();
+        displayStudents(students);
+      }
+    }
+
+    function addOrUpdateStudent() {
+      let name = document.getElementById("name").value;
+      let age = document.getElementById("age").value;
+      let phone = document.getElementById("phone").value;
+      let district = document.getElementById("district").value;
+
+      if (selectedStudentIndex === null) {
+    
+        students.push({ name, age, phone, district });
+      } else {
+    
+        students[selectedStudentIndex] = { name, age, phone, district };
+      }
+
+      resetForm();
+      displayStudents(students);
+    }
+
+    function resetForm() {
+      document.getElementById("name").value = '';
+      document.getElementById("age").value = '';
+      document.getElementById("phone").value = '';
+      document.getElementById("district").value = '';
+
+      selectedStudentIndex = null; 
+      document.getElementById("editButton").disabled = true;
+      document.getElementById("deleteButton").disabled = true;
+    }
+
+  </script>
+
+</body>
+
+</html>
